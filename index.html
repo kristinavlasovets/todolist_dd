@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.7em;
+            line-height: 2em;
+            color: #000000;
+
+            background-color: #ffe9ba;
+        }
+        .tasks {
+            width: 300px;
+            height: fit-content;
+            background-color: #fffcf3;
+            border-radius: 30px;
+            text-align: center;
+            padding: 20px;
+            margin: 10vh auto;
+        }
+        .tasks__img {
+            width: 300px;
+            display: flex;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        #tasks__img {
+            position: relative;
+            width: 300px;
+            top: 17vh;
+        }
+        .tasks__title {
+            text-transform: uppercase;
+        }
+        .tasks__list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .tasks__item {
+
+            -webkit-box-shadow: 0px 5px 1px -5px rgba(34, 60, 80, 0.6);
+            -moz-box-shadow: 0px 5px 1px -5px rgba(34, 60, 80, 0.6);
+            box-shadow: 0px 5px 1px -5px rgba(34, 60, 80, 0.6);
+
+            margin-bottom: 10px;
+            padding: 5px;
+
+            cursor: move;  
+        }
+        .tasks__item:hover {
+            -webkit-box-shadow: 26px 22px 30px -16px rgba(34, 60, 80, 0.2);
+            -moz-box-shadow: 26px 22px 30px -16px rgba(34, 60, 80, 0.2);
+            box-shadow: 26px 22px 30px -16px rgba(34, 60, 80, 0.2);
+        }
+        .tasks__item:last-child {
+            margin-bottom: 0;
+        }
+        .selected {
+            opacity: .4;
+        }
+    </style>
+</head>
+<body> 
+
+    <div class="tasks__img">
+         
+        <img src="todo.png" id="tasks__img" alt="">
+    
+    </div>
+
+    <section class="tasks">
+      
+        <h1 class="tasks__title">to do list</h1>
+        
+
+        <ul class="tasks__list">
+            
+
+            <li class="tasks__item">learn HTML</li>
+            <li class="tasks__item">learn CSS</li>
+            <li class="tasks__item">learn JavaScript</li>
+            <li class="tasks__item">learn React</li>
+            <li class="tasks__item">stay alive</li>
+        </ul>
+
+    </section>  
+    
+    
+
+
+    <script>
+        const tasksListElem = document.querySelector('.tasks__list');
+        const tasksElem = tasksListElem.querySelectorAll('.tasks__item');
+
+        for (const task of tasksElem) {
+            task.draggable = true;
+        }
+
+
+        tasksListElem.addEventListener('dragstart', (e) => {
+            e.target.classList.add('selected');
+        })
+        tasksListElem.addEventListener('dragend', (e) => {
+            e.target.classList.remove('selected');
+        })
+
+
+
+        tasksListElem.addEventListener('dragover', (e) => {
+            //  allow to drop elements into this zone
+
+            e.preventDefault();
+       
+        
+        // find the moving element
+        const activeElem = tasksListElem.querySelector('.selected');
+
+        // find the element the cursor is currently hovering over
+        const currentElem = e.target;
+
+        // check that event worked:
+        // 1. not on the element that we are moving
+        // 2. exactly on the list element
+        const isMoveable = activeElem !== currentElem && currentElem.classList.contains('tasks__item');
+
+        // if not, we stop the function: 
+        if (!isMoveable) {
+            return;
+        }
+
+        // find the element, before which we are inserting
+        const nextElem = (currentElem === activeElem.nextElementSibling) ? 
+                currentElem.nextElementSibling : currentElem;
+
+
+        // insert activeElem before nextElem
+        tasksListElem.insertBefore(activeElem, nextElem);
+
+        });
+
+
+
+                       //  OPTION //
+
+
+
+
+        const getNextElem = (cursorPosition, currentElem) => {
+
+            // recieve the object with sizes and coords
+            const currentElemCoord = currentElem.getBoundingClientRect();
+
+            // find vertical coord of the current element's center
+            const currentElemCenter = currentElemCoord.y + currentElemCoord.height / 2;
+
+            // if cursor is higher than element's center, return the current element
+            // else - next DOM-element
+            const nextElem = (cursorPosition < currentElemCenter) ? currentElem : currentElem.nextElementSibling;
+
+            return nextElem;
+        }
+
+        tasksListElem.addEventListener('dragover', (e) => {
+            e.preventDefault();
+
+            const activeElem = tasksListElem.querySelector('.selected');
+            const currentElem = e.target;
+            const isMovable = activeElem !== currentElem && currentElem.classList.contains('tasks__item');
+
+            if (!isMovable) {
+                return;
+            }
+
+            // e.clientY - vertical coord of cursor in that very moment, when the event worked
+            const nextElem = getNextElem(e.clientY, currentElem);
+
+            // check if there is a need to change elemet's location
+            if (
+                nextElem && activeElem === nextElem.previousElementSibling || activeElem === nextElem
+            ) {
+                //if not, then we are out of that function to prevent any excess chenages in DOM
+                return;
+            }
+
+            tasksListElem.insertBefore(activeElem, nextElem)
+        })
+
+
+
+     </script>
+    
+</body>
+</html>
